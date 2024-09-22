@@ -1,17 +1,31 @@
+name: 🚀 Deploy to Staging or Production
+
 on: 
   push:
     branches:
-      - main
-name: 🚀 Deploy website on push
+      - staging
+      - production
+
 jobs:
   web-deploy:
     name: 🎉 Deploy
     runs-on: ubuntu-latest
+
     steps:
     - name: 🚚 Get latest code
-      uses: actions/checkout@v2.3.2
-    
-    - name: 📂 Sync files
+      uses: actions/checkout@v2
+
+    # Conditional deployment based on branch
+    - name: 📂 Sync files to server
+      if: github.ref == 'refs/heads/staging' # Deploy to staging
+      uses: SamKirkland/FTP-Deploy-Action@4.0.0
+      with:
+        server: ${{ secrets.STAGING_FTP_SERVER }}
+        username: ${{ secrets.STAGING_FTP_USERNAME }}
+        password: ${{ secrets.STAGING_FTP_PASSWORD }}
+
+    - name: 📂 Sync files to production server
+      if: github.ref == 'refs/heads/production' # Deploy to production
       uses: SamKirkland/FTP-Deploy-Action@4.0.0
       with:
         server: ${{ secrets.FTP_SERVER }}
