@@ -22,7 +22,9 @@ class ExcelController extends Controller
       
         // Validate that a file has been uploaded
         $request->validate([
-            'excel_file' => 'required|mimes:xlsx',
+            'payroll_data' => 'required|mimes:xlsx',
+            'loe_data' => 'required|mimes:xlsx',
+
             'date_picker'=> "required",
             "document_number"=>"required",
             "external_doc_reference"=>"required"
@@ -37,9 +39,12 @@ class ExcelController extends Controller
         $submission_date=  $request["date_picker"];
         $doc_number= $request["document_number"];
         $external_doc_reference= $request["external_doc_reference"];
+
         
         
-        
+        // VALIDATIONS THAT NEEDS TO BE MADE ARE , VALID INFORMATION AS VALID INPUT . 
+        // 
+
         
         // Import the Excel file, passing the list of sheets to the import class
         // Excel::import(new SpecificSheetsImport($sheetNames), $file);
