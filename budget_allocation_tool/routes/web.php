@@ -13,8 +13,15 @@ use App\Http\Controllers\ExcelController;
 |
 */
 
-Route::get('/upload', function () {
-    return view('welcome');
+
+
+Route::get('/', function () {
+    return "add api please";
 });
 
-Route::post('/import-excel', [ExcelController::class,'importExcel']);
+
+// Route::get('/upload', function () {
+//     return view('welcome');
+// });
+
+// Route::post('/import-excel', [ExcelController::class,'importExcel']);
