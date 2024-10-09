@@ -31,7 +31,9 @@ class ExcelController extends Controller
         
         $sheetNames = ['Processed', 'GL Acct Lookup']; // Replace with your specific sheet names
 
-        $file = $request->file('excel_file');
+        $payroll_file = $request->file('payroll_data');
+        $loe_file = $request->file('loe_data');
+
         $submission_date=  $request["date_picker"];
         $doc_number= $request["document_number"];
         $external_doc_reference= $request["external_doc_reference"];
@@ -46,7 +48,7 @@ class ExcelController extends Controller
         
         // Import the EMPLOYEE RELATED Excel file
         $employeeImport = new DataImport("Payroll Data");
-        Excel::import($employeeImport, $file);
+        Excel::import($employeeImport, $payroll_file);
         $employees = $employeeImport->employees;
         
         
@@ -56,7 +58,7 @@ class ExcelController extends Controller
         // return $employees;
         
         $budgetAllocationImport = new BudgetAllocationImport("Input-2 (LoE)");
-        Excel::import($budgetAllocationImport, $file);
+        Excel::import($budgetAllocationImport, $loe_file);
         $fundData = $budgetAllocationImport->fundData;
         
         
