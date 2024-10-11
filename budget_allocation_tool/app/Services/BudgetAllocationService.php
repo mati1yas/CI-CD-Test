@@ -74,15 +74,22 @@ class BudgetAllocationService
             }  
 
             // After finishing the inner loop, merge the temporary arrays into the result array 
+
+
             
             $deductions = [];
-            // $deductions[]=$this->formatRecord($employee,null,"deductions tax",$employee["tax"],$date,$doc_number,$doc_reference);
-            // $deductions[]=$this->formatRecord($employee,null,"deductions pf",$employee["pf_total"],$date,$doc_number,$doc_reference);
-            // $deductions[]=$this->formatRecord($employee,null,"deductions pension",$employee["pension_total"],$date,$doc_number,$doc_reference);
-            // $deductions[]=$this->formatRecord($employee,null,"deductions advance",$employee["advance_on_salary"],$date,$doc_number,$doc_reference);
 
-            // $deductions[]=$this->formatRecord($employee,null,"deductions others",$employee["other_deduction"],$date,$doc_number,$doc_reference);
-
+            if($employee["tax"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Income tax",$employee["tax"],$date,$doc_number,$doc_reference);
+            } 
+            if($employee["pf_total"]!=0)
+            { $deductions[]=$this->formatRecord($employee,null,"PF Deduct.",$employee["pf_total"],$date,$doc_number,$doc_reference);
+            }
+            if($employee["pension_total"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Pension Deduct.",$employee["pension_total"],$date,$doc_number,$doc_reference);
+                }  
+            if($employee["advance_on_salary"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Advance Deduct.",$employee["advance_on_salary"],$date,$doc_number,$doc_reference);
+            }  
+            if($employee["other_deduction"]!=0){$deductions[]=$this->formatRecord($employee,null,"Other Deduct",$employee["other_deduction"],$date,$doc_number,$doc_reference);
+            }
 
             
             $result = array_merge($result, $salaryRecords, $pensionRecords, $pfRecords,$deductions);  
@@ -121,6 +128,8 @@ class BudgetAllocationService
 
     {
 
+        $list_of_dedudctions= ["Income tax","Pension Deduct.","PF Deduct.","Advance Deduct.","Other Deduct.","Net pay"];
+
 
         
                 // User Inputs
@@ -132,28 +141,76 @@ class BudgetAllocationService
         $account_type = 'G/L account';
         $balance_account_type = 'G/L Account';
 
-        // Derived Fields   //  TODO   needs further conditioning for the benefits(pension and Pf) and deduction . 
-        $account_no =$this-> getDepartmentSector($employee['department'])=="COORD"?52001 : 52002;   // this is for salary . 
+        // Derived Fields   //  TODO   needs further conditioning for the benefits(pension and Pf) and deduction .  
+        $account_no='';
+        if($type=="Salary"){
+            $account_no =$this-> getDepartmentSector($employee['department'])=="COORD" ?52001 : 52002;   // this is for salary . 
+
+        }else if($type == "PF"||$type=="Pension"){
+            $account_no= 53001;
+     
+        } else if ($type=="Income tax"){
+            $account_no = 21222;
+        }else if ($type=="Pension Deduct."){
+            $account_no = 21223;
+        }else if ($type=="PF Deduct."){
+            $account_no = 21207;
+        }else if ($type=="Advance Deduct."){
+            $account_no = 12320 ;
+        }else if ($type=="Other Deduct."){
+            $account_no = 61201;
+        } else if ($type == "Net pay"){
+            $account_no = 21130;
+                }
 
         $et="ET";
-        $fund_no = $fund!=null ?  $et . $fund['fund_name']:"";
+
+        if (in_array($type, $list_of_dedudctions)){
+            $fund_no="GEN";
+
+        }else{
+            $fund_no = $fund!=null ?   $fund['fund_name']:"";  // TODO here i am going to add deductions "GEN" 
+            
+        }
         $dimension_1 = $employee["location" ];
         $dimension_2 =  $this->getDepartmentSector($employee['department']); //$sector_lookup[$department];
 
-        // Dimension 3: Check whether it's Budget Line or Fringe Line based on a condition
-        $condition=true;   //  if salary  => Budget Line   and for PF and pension  fringe line  then for deductions it is empty . 
-        if ($condition) {
-            $dimension_3 = $fund!=null ?$fund['fringe_line']:"";
-        } else {
-            $dimension_3 = $fund!=null ?$fund['budget_line']:"";
-        }
+      
+        //  if salary  => Budget Line   and for PF and pension  fringe line  then for deductions it is empty . 
+        if($type=="Salary"){
+            $dimension_3 = $fund!=null ?$fund['budget_line']:"";           
 
+        }else if($type == "PF"||$type=="Pension"){
+            $dimension_3 = $fund!=null ?$fund['fringe_line']:"";
+        } else{
+            $dimension_3="";
+        }
+        
         // Dimension 4: Initiative (lookup + concatenation)
         
         $dimension_4 = $this->getInitiative($employee['department'],$employee['id']);
 
         // Employee Info
+
+        //TODO 
+
         $dimension_6 = $employee['id'];
+
+        if($type=="Salary"||$type == "PF"||$type=="Pension"||$type=="Advance Deduct."||$type=="Other Deduct."){
+
+        
+            $dimension_6 = $employee['id'];           
+
+        }else if($type=="Income tax"){
+            $dimension_6 =  "RA-AA-001";
+        }
+        else if ($type=="Pension Deduct."){
+            $dimension_6 =  "RA-AA-003";
+        } else {
+            $dimension_6 = "";
+        }
+  
+        
  
         // Description Field
         $date = Carbon::parse($posting_date);
@@ -164,12 +221,31 @@ class BudgetAllocationService
     
         $pos=$employee['position'];
         $percent= $fund!=null ?  $fund['loe_percentage']:"";
-        $description =  $type === "deductions" ? "Deduction": "{$type} {$month} {$year}_{$pos}_{$percent}%";  
+
+        //TODO  create different description for deductions and beneficiaries.
+        if (in_array($type, $list_of_dedudctions)){
+            $description =  "{$employee["name"]} $type " ;  
+
+        }else{
+            $description =   "{$type} {$month} {$year}_{$pos}_{$percent}%";
+            
+        }
+
+        // $description =  $type === "deductions" ? "Deduction": "{$type} {$month} {$year}_{$pos}_{$percent}%";  
 
         // $description = {$type} {$month} {$year}_{$employee['position']}_{$employee["loe_percentage"]}%;
 
         // Amount
-        $amount =$amount;
+
+        // TODO make the amount negative  for deductions. 
+
+        if (in_array($type, $list_of_dedudctions)){
+
+            $amount = -$amount;
+        }else{
+            $amount = $amount;
+        }
+
 
         // Empty Fields
         $document_type = "";
@@ -206,7 +282,7 @@ class BudgetAllocationService
             'currency_code' => $currency_code,  // Empty (Express Users Leave Blank)
             'allocation_no' => $allocation_no,  // Empty
             'balance_account_type' => $balance_account_type,  // G/L Account
-            'balance_account_no' => $balance_account_no,  // Empty
+            'balance_account_no' => $balance_account_no,  
             'applies_to_document_type' => $applies_to_document_type,  // Empty
             'applies_to_document_no' => $applies_to_document_no,  // Empty
         ];
@@ -218,7 +294,7 @@ class BudgetAllocationService
         $extracted_id = substr($emp_id, 0, 2);
         // $deptShort = "NUT";  
 
-        if ($deptShort == "PRoTCETion" || $deptShort == "PON") {  
+        if ($deptShort == "PRO" || $deptShort == "PON") {  
             $result = $extracted_id . "N01";  
         } elseif ($deptShort == "WASH") {  
             $result = $extracted_id . "H01";  
