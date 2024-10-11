@@ -50,9 +50,9 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
             $PF_employee=$row[34];
             $PF_employer=$row[35];
             $PF_total=$PF_employee+$PF_employer;
-            $tax_ETB=$row[31];
-            $advance_on_salary =$row[39];
-            $other_deduction =$row[40];
+            $tax_ETB=$row[31]??0;
+            $advance_on_salary =$row[39]??0;
+            $other_deduction =$row[40]??0;
 
             
             // net pay and difference to be calculated ;
