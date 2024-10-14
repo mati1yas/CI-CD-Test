@@ -19,3 +19,6 @@ Route::get('/', function () {
 
 
 Route::post('/import-excel', [ExcelController::class,'importExcel']);
+
+
+Route::get('/login',function(){return "login route"; });
