@@ -50,6 +50,7 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
             $PF_employee=$row[34];
             $PF_employer=$row[35];
             $PF_total=$PF_employee+$PF_employer;
+            $net_pay= $row[41];
             $tax_ETB=$row[31]??0;
             $advance_on_salary =$row[39]??0;
             $other_deduction =$row[40]??0;
@@ -70,15 +71,12 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
                 "pf_employer"=>$PF_employer,
                 "pf_total" => $PF_total,
                 "tax" => $tax_ETB,
+                "net_pay"=>$net_pay,
                 "advance_on_salary" => $advance_on_salary,
                 "other_deduction" => $other_deduction
             ];
             
-            // print_r($name);
-            // print_r(" ANOTHER LINE    ");
-            // Here, you could store the data in the database or perform other operations
-            // For example, creating a new user:
-
+          
            
         }
     }

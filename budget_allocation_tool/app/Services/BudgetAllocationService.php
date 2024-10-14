@@ -20,27 +20,7 @@ class BudgetAllocationService
      */
     public function distributePayments(array $employees, array $funds_all,$date,$doc_number,$doc_reference)
     {
-        // $result = [];
-
-        // foreach ($employees as $employee) {
-
-            
-        //     foreach ($funds as $fund) {
-        //         // Calculate distributions based on LOE Percentage
-        //         $salaryAllocation = $this->calculateAllocation($employee['salary'], $fund['loe_percentage']);
-        //         $pensionAllocation = $this->calculateAllocation($employee['pension'], $fund['loe_percentage']);
-        //         $pfAllocation = $this->calculateAllocation($employee['pf'], $fund['loe_percentage']);
-
-        //         // Add salary distribution record
-        //         $result[] = $this->formatRecord($employee, $fund, 'Salary', $salaryAllocation);
-
-        //         // Add pension distribution record
-        //         $result[] = $this->formatRecord($employee, $fund, 'Pension', $pensionAllocation);
-
-        //         // Add PF distribution record
-        //         $result[] = $this->formatRecord($employee, $fund, 'PF', $pfAllocation);
-        //     }
-        // }
+        
 
         $result = [];  
 
@@ -63,7 +43,7 @@ class BudgetAllocationService
                 $pensionAllocation = $this->calculateAllocation($employee['pension_11'], $fund['loe_percentage']);  
                 $pfAllocation = $this->calculateAllocation($employee['pf_employer'], $fund['loe_percentage']);  
 
-                // Add salary distribution record  
+                
                 $salaryRecords[] = $this->formatRecord($employee, $fund, 'Salary', $salaryAllocation,$date,$doc_number,$doc_reference);  
 
                 // Add pension distribution record  
@@ -90,7 +70,11 @@ class BudgetAllocationService
             }  
             if($employee["other_deduction"]!=0){$deductions[]=$this->formatRecord($employee,null,"Other Deduct",$employee["other_deduction"],$date,$doc_number,$doc_reference);
             }
-
+            
+            if($employee["net_pay"]!=0){
+                $deductions[]=$this->formatRecord($employee,null,"Net Pay Deduct.",$employee["net_pay"],$date,$doc_number,$doc_reference);
+            }
+           
             
             $result = array_merge($result, $salaryRecords, $pensionRecords, $pfRecords,$deductions);  
         }  
@@ -128,11 +112,11 @@ class BudgetAllocationService
 
     {
 
-        $list_of_dedudctions= ["Income tax","Pension Deduct.","PF Deduct.","Advance Deduct.","Other Deduct.","Net pay"];
+        $list_of_dedudctions= ["Income tax","Pension Deduct.","PF Deduct.","Advance Deduct.","Other Deduct.","Net Pay Deduct."];
 
 
         
-                // User Inputs
+        // USER INPUTS . 
         $posting_date =  Carbon::createFromFormat('Y-m-d', $date)->format('m/d/Y'); ;
         $document_no = $doc_number;
         $external_document_no = $doc_reference;
@@ -141,44 +125,26 @@ class BudgetAllocationService
         $account_type = 'G/L account';
         $balance_account_type = 'G/L Account';
 
-        // Derived Fields   //  TODO   needs further conditioning for the benefits(pension and Pf) and deduction .  
-        $account_no='';
-        if($type=="Salary"){
-            $account_no =$this-> getDepartmentSector($employee['department'])=="COORD" ?52001 : 52002;   // this is for salary . 
+        // DERIVED FIELDS  
 
-        }else if($type == "PF"||$type=="Pension"){
-            $account_no= 53001;
-     
-        } else if ($type=="Income tax"){
-            $account_no = 21222;
-        }else if ($type=="Pension Deduct."){
-            $account_no = 21223;
-        }else if ($type=="PF Deduct."){
-            $account_no = 21207;
-        }else if ($type=="Advance Deduct."){
-            $account_no = 12320 ;
-        }else if ($type=="Other Deduct."){
-            $account_no = 61201;
-        } else if ($type == "Net pay"){
-            $account_no = 21130;
-                }
+        $account_no= $this->getGLAccountNumber($type,$employee);
+        
 
         $et="ET";
-
         if (in_array($type, $list_of_dedudctions)){
             $fund_no="GEN";
-
         }else{
-            $fund_no = $fund!=null ?   $fund['fund_name']:"";  // TODO here i am going to add deductions "GEN" 
-            
+            $fund_no = $fund!=null ?   $fund['fund_name']:"";              
         }
+
+
         $dimension_1 = $employee["location" ];
         $dimension_2 =  $this->getDepartmentSector($employee['department']); //$sector_lookup[$department];
 
       
         //  if salary  => Budget Line   and for PF and pension  fringe line  then for deductions it is empty . 
         if($type=="Salary"){
-            $dimension_3 = $fund!=null ?$fund['budget_line']:"";           
+            $dimension_3 = $fund!=null ?$fund['budget_line']:"";       
 
         }else if($type == "PF"||$type=="Pension"){
             $dimension_3 = $fund!=null ?$fund['fringe_line']:"";
@@ -186,31 +152,15 @@ class BudgetAllocationService
             $dimension_3="";
         }
         
-        // Dimension 4: Initiative (lookup + concatenation)
-        
+        // Dimension 4: Initiative (lookup + concatenation)        
         $dimension_4 = $this->getInitiative($employee['department'],$employee['id']);
 
-        // Employee Info
-
-        //TODO 
-
-        $dimension_6 = $employee['id'];
-
-        if($type=="Salary"||$type == "PF"||$type=="Pension"||$type=="Advance Deduct."||$type=="Other Deduct."){
-
         
-            $dimension_6 = $employee['id'];           
-
-        }else if($type=="Income tax"){
-            $dimension_6 =  "RA-AA-001";
-        }
-        else if ($type=="Pension Deduct."){
-            $dimension_6 =  "RA-AA-003";
-        } else {
-            $dimension_6 = "";
-        }
+        // Employee Info        
+        $dimension_6 = $employee['id'];   // ID         
+        $dimension_6=$this->getIdDimension($type,$employee);
+        
   
-        
  
         // Description Field
         $date = Carbon::parse($posting_date);
@@ -222,25 +172,16 @@ class BudgetAllocationService
         $pos=$employee['position'];
         $percent= $fund!=null ?  $fund['loe_percentage']:"";
 
-        //TODO  create different description for deductions and beneficiaries.
+        //  CREATE DIFFERENT DESCRIPTION FOR DEDUCTIONS AND BENEFITS
         if (in_array($type, $list_of_dedudctions)){
             $description =  "{$employee["name"]} $type " ;  
-
         }else{
-            $description =   "{$type} {$month} {$year}_{$pos}_{$percent}%";
-            
+            $description =   "{$type} {$month} {$year}_{$pos}_{$percent}%";            
         }
 
-        // $description =  $type === "deductions" ? "Deduction": "{$type} {$month} {$year}_{$pos}_{$percent}%";  
-
-        // $description = {$type} {$month} {$year}_{$employee['position']}_{$employee["loe_percentage"]}%;
-
-        // Amount
-
-        // TODO make the amount negative  for deductions. 
-
+       
+        // DISTRIBUTED AMOUNT 
         if (in_array($type, $list_of_dedudctions)){
-
             $amount = -$amount;
         }else{
             $amount = $amount;
@@ -350,4 +291,65 @@ public function getDepartmentSector($department_name)
     }
 }
 
+    /**
+     * Get Department Short Code using switch statement
+     *
+     * @param string $type
+     * @param array $employee
+     * @return string
+     */
+    public function getGlAccountNumber($type,$employee)
+    {   
+        $account_no='';
+        if($type=="Salary"){
+            $account_no =$this-> getDepartmentSector($employee['department'])=="COORD" ?52001 : 52002;   // this is for salary . 
+
+        }else if($type == "PF"||$type=="Pension"){
+            $account_no= 53001;
+     
+        } else if ($type=="Income tax"){
+            $account_no = 21222;
+        }else if ($type=="Pension Deduct."){
+            $account_no = 21223;
+        }else if ($type=="PF Deduct."){
+            $account_no = 21207;
+        }else if ($type=="Advance Deduct."){
+            $account_no = 12320 ;
+        }else if ($type=="Other Deduct."){
+            $account_no = 61201;
+        } else if ($type == "Net Pay Deduct."){
+            $account_no = 21130;
+                }
+
+        return $account_no;
+    }
+
+     /**
+     * Get Department Short Code using switch statement
+     *
+     * @param string $type
+     * @param array $employee
+     * @return string
+     */
+    public function getIdDimension($type,$employee)    {   
+        
+        if($type=="Salary"||$type == "PF"||$type=="Pension"||$type=="Advance Deduct."||$type=="Other Deduct."){
+            $dimension_6 = $employee['id'];          
+
+        }else if($type=="Income tax"){
+            $dimension_6 =  "RA-AA-001";
+        }
+        else if ($type=="Pension Deduct."){
+            $dimension_6 =  "RA-AA-003";
+        } else {
+            $dimension_6 = "";
+        }
+
+        return $dimension_6;
+
+    }
+
+
 }
+
+
