@@ -2,7 +2,8 @@
 
 namespace App\Services;
 use Carbon\Carbon;
-
+use App\Models\Payroll;
+use App\Models\Employee;
 
 class BudgetAllocationService
 {
@@ -18,7 +19,7 @@ class BudgetAllocationService
 
      * @return array
      */
-    public function distributePayments(array $employees, array $funds_all,$date,$doc_number,$doc_reference)
+    public function distributePayments(array $employees, array $funds_all,$date,$doc_number,$doc_reference,$exchange_rate)
     {
         
 
@@ -44,13 +45,13 @@ class BudgetAllocationService
                 $pfAllocation = $this->calculateAllocation($employee['pf_employer'], $fund['loe_percentage']);  
 
                 
-                $salaryRecords[] = $this->formatRecord($employee, $fund, 'Salary', $salaryAllocation,$date,$doc_number,$doc_reference);  
+                $salaryRecords[] = $this->formatRecord($employee, $fund, 'Salary', $salaryAllocation,$date,$doc_number,$doc_reference,$exchange_rate);  
 
                 // Add pension distribution record  
-                $pensionRecords[] = $this->formatRecord($employee, $fund, 'Pension', $pensionAllocation,$date,$doc_number,$doc_reference);  
+                $pensionRecords[] = $this->formatRecord($employee, $fund, 'Pension', $pensionAllocation,$date,$doc_number,$doc_reference,$exchange_rate);  
 
                 // Add PF distribution record  
-                $pfRecords[] = $this->formatRecord($employee, $fund, 'PF', $pfAllocation,$date,$doc_number,$doc_reference);  
+                $pfRecords[] = $this->formatRecord($employee, $fund, 'PF', $pfAllocation,$date,$doc_number,$doc_reference,$exchange_rate);  
             }  
 
             // After finishing the inner loop, merge the temporary arrays into the result array 
@@ -59,20 +60,20 @@ class BudgetAllocationService
             
             $deductions = [];
 
-            if($employee["tax"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Income tax",$employee["tax"],$date,$doc_number,$doc_reference);
+            if($employee["tax"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Income tax",$employee["tax"],$date,$doc_number,$doc_reference,$exchange_rate);
             } 
             if($employee["pf_total"]!=0)
-            { $deductions[]=$this->formatRecord($employee,null,"PF Deduct.",$employee["pf_total"],$date,$doc_number,$doc_reference);
+            { $deductions[]=$this->formatRecord($employee,null,"PF Deduct.",$employee["pf_total"],$date,$doc_number,$doc_reference,$exchange_rate);
             }
-            if($employee["pension_total"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Pension Deduct.",$employee["pension_total"],$date,$doc_number,$doc_reference);
+            if($employee["pension_total"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Pension Deduct.",$employee["pension_total"],$date,$doc_number,$doc_reference,$exchange_rate);
                 }  
-            if($employee["advance_on_salary"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Advance Deduct.",$employee["advance_on_salary"],$date,$doc_number,$doc_reference);
+            if($employee["advance_on_salary"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Advance Deduct.",$employee["advance_on_salary"],$date,$doc_number,$doc_reference,$exchange_rate);
             }  
-            if($employee["other_deduction"]!=0){$deductions[]=$this->formatRecord($employee,null,"Other Deduct",$employee["other_deduction"],$date,$doc_number,$doc_reference);
+            if($employee["other_deduction"]!=0){$deductions[]=$this->formatRecord($employee,null,"Other Deduct",$employee["other_deduction"],$date,$doc_number,$doc_reference,$exchange_rate);
             }
             
             if($employee["net_pay"]!=0){
-                $deductions[]=$this->formatRecord($employee,null,"Net Pay Deduct.",$employee["net_pay"],$date,$doc_number,$doc_reference);
+                $deductions[]=$this->formatRecord($employee,null,"Net Pay Deduct.",$employee["net_pay"],$date,$doc_number,$doc_reference,$exchange_rate);
             }
            
             
@@ -107,7 +108,7 @@ class BudgetAllocationService
      * @param string $doc_number
      * @return array
      */
-    private function formatRecord($employee, $fund, $type, $amount,$date,$doc_number,$doc_reference)
+    private function formatRecord($employee, $fund, $type, $amount,$date,$doc_number,$doc_reference,$exchange_rate)
 
 
     {
@@ -183,8 +184,19 @@ class BudgetAllocationService
         // DISTRIBUTED AMOUNT 
         if (in_array($type, $list_of_dedudctions)){
             $amount = -$amount;
+            if($type=="PF Deduct."){
+
+                // this to convert usd based PF value to birr . 
+                $amount*=$exchange_rate;
+                
+            }
         }else{
+            
             $amount = $amount;
+            if($type=="PF"){
+                $amount*=$exchange_rate;
+            }
+
         }
 
 
@@ -200,6 +212,39 @@ class BudgetAllocationService
         $balance_account_no = "";
         $applies_to_document_type = "";
         $applies_to_document_no = "";
+
+
+       
+        // BEFORE RETURNING THE DATA , IT WILL INSERT TO THE DATABASE . 
+
+        $new_employee = Employee::firstOrCreate(
+            ['emp_id' => $employee['id']], // Using 'id' to search for an existing employee
+            [
+                'emp_id'=>$employee['id'],                
+                'name' => $employee['name'],
+                'sector' => $dimension_2,
+                'location_name' => $employee["location"],
+                'first_process_date' =>$date,
+                'last_process_date'=>$date,
+            ]
+        );
+
+        // updating the last process date to the current one . 
+        $new_employee->update([
+            'last_process_date' => $date,
+        ]);
+
+        //TODO  when writing If the employee has already been calculated for that month we are going to overwrite the value. 
+        
+        $new_employee->payrolls()->create(['date' => $date,
+            'fund_no' => $fund_no ?? null,
+            'type' => $type,
+            'amount_birr' => $amount,
+            'amount_usd' => $amount / $exchange_rate,
+            'gl_account'=>$account_no]);
+
+
+
         return  [
             'posting_date' => $posting_date,  // User input
             'document_type' => $document_type,  // Empty
