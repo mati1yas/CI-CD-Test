@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashBoardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\ForgotPasswordController;
@@ -39,4 +40,21 @@ Route::post('/forgot-password', [ForgotPasswordController::class,'forgotPassword
 Route::post('/prompt-user-to-reset', [ForgotPasswordController::class,'forgotPassword']);
 Route::post('/reset-password', [ForgotPasswordController::class,'resetPassword']);
 Route::middleware('auth:sanctum')->post('/change-password', [ForgotPasswordController::class, 'changePassword']);
+
+
+
+Route::get('/sectoremployees', [DashBoardController::class,'getEmployeeCountBySector']);
+
+Route::get('/glaccountamount', [DashBoardController::class,'getAmountsByGLAccount']);
+
+
+Route::get('/getAggregatedPayrollData', [DashBoardController::class,'getAggregatedPayrollData']);
+
+
+
+
+Route::get('/getTypeBasedTotal', [DashBoardController::class,'getTypeBasedTotal']);
+Route::get('/getReconcillationData', [DashBoardController::class,'getReconcillationData']);
+
+
 
