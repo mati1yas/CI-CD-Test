@@ -27,7 +27,8 @@ class ExcelController extends Controller
 
             'date_picker'=> "required",
             "document_number"=>"required",
-            "external_doc_reference"=>"required"
+            "external_doc_reference"=>"required",
+             "exchange_rate"=>"required"
         ]);
         
         

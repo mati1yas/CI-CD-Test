@@ -38,7 +38,9 @@ class DashBoardController extends Controller
 
     public function getAmountsByGLAccount(Request $request): \Illuminate\Support\Collection
     {
+        
 
+        // this 
        
         $startDate = Carbon::parse($request['filter_start_date']);
         
@@ -56,9 +58,67 @@ class DashBoardController extends Controller
            return $query->groupBy('gl_account')
             ->get();
     }
+
+
+
+
+    public function getTypeBasedTotalForLocations(Request $request)
+    {
+        
+
+                // this is for section where it can be shown using bar chart (SECTION Three using dropdown for location . ) . 
+        $startDate = Carbon::parse($request['filter_start_date']);
+        $endDate = Carbon::parse($request['filter_end_date']);
+        $selected_fund_codes = $request['selected_fund_codes'];
+
+        $query = Payroll::select(
+                'employees.location_name as location',
+                'type',
+                DB::raw('SUM(amount_birr) as total_amount_birr'),
+                DB::raw('SUM(amount_usd) as total_amount_usd')
+            )
+            ->join('employees', 'payrolls.employee_id', '=', 'employees.id')
+            ->whereBetween('date', [$startDate, $endDate]);
+
+        if ($selected_fund_codes && count($selected_fund_codes) > 0) {
+            $query->whereIn('fund_no', $selected_fund_codes);
+        }
+
+        $results = $query->groupBy('employees.location_name', 'type')->get();
+
+        // Restructure the response
+        $formattedResults = [];
+
+        foreach ($results as $result) {
+            $location = $result->location;
+
+            // Initialize location in the array if it doesn't exist
+            if (!isset($formattedResults[$location])) {
+                $formattedResults[$location] = [
+                    'location' => $location,
+                    'data' => []
+                ];
+            }
+
+            // Append each type, amount_birr, and amount_usd to the location's data
+            $formattedResults[$location]['data'][] = [
+                'type' => $result->type,
+                'amount_in_birr' => $result->total_amount_birr,
+                'amount_in_usd' => $result->total_amount_usd
+            ];
+        }
+
+        // Convert to a simple array of locations
+        $response = array_values($formattedResults);
+
+    return response()->json($response);
+   
+    }
     public function getTypeBasedTotal(Request $request): \Illuminate\Support\Collection
     {
         
+
+        // this is for section where it can be shown using bar chart (SECTION ONe) . 
         $startDate = Carbon::parse($request['filter_start_date']);
         
         $endDate= Carbon::parse($request['filter_end_date']);
@@ -74,11 +134,9 @@ class DashBoardController extends Controller
         if ($selected_fund_codes && count($selected_fund_codes) > 0) {
             $query->whereIn('fund_no', $selected_fund_codes);
         }
-       return  $query->groupBy('type')->get();
-
-
 
         
+       return  $query->groupBy('type')->get();  
     }
 
     /**
@@ -91,7 +149,7 @@ class DashBoardController extends Controller
     public function getAggregatedPayrollData(Request $request)
     {
 
-        //  THIS IS FOR THE TREND which is sum off all the expenses. 
+        //  THIS IS FOR THE TREND which is sum off all the expenses. () 
         $startDate = Carbon::parse($request['filter_start_date']);
         
         $endDate= Carbon::parse($request['filter_end_date']);
@@ -224,6 +282,52 @@ class DashBoardController extends Controller
        
 
         return $result;
+   }
+
+
+   public function getFilteringData(){
+
+        return response()->json(
+        [
+                "fund_codes" => ["ETB2I", "ETD3O", "ETD3N", "ETD5EE", "ETE2E", "ETA1BB", "ETB1I", "ETD3P", "ETD5FF", "ETA1CC", "ETF6E", "ETZ1Q"],
+               "location_Names" => [  
+                        [  
+                            "location_name" => "AA",  
+                            "location_code" => "ACFUS-ET02"  
+                        ],  
+                        [  
+                            "location_name" => "BO",  
+                            "location_code" => "ACFUS-ET03"  
+                        ],  
+                        [  
+                            "location_name" => "GA",  
+                            "location_code" => "ACFUS-ET04"  
+                        ],  
+                        [  
+                            "location_name" => "HA",  
+                            "location_code" => "ACFUS-ET05"  
+                        ],  
+                        [  
+                            "location_name" => "SO",  
+                            "location_code" => "ACFUS-ET06"  
+                        ],  
+                        [  
+                            "location_name" => "WH",  
+                            "location_code" => "ACFUS-ET07"  
+                        ],  
+                        [  
+                            "location_name" => "WO",  
+                            "location_code" => "ACFUS-ET08"  
+                        ],  
+                        [  
+                            "location_name" => "TG",  
+                            "location_code" => "ACFUS-ET09"  
+                        ]  
+                    ]  
+            ]);
+
+
+
    }
 
 

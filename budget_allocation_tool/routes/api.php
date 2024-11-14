@@ -54,7 +54,10 @@ Route::get('/getAggregatedPayrollData', [DashBoardController::class,'getAggregat
 
 
 Route::get('/getTypeBasedTotal', [DashBoardController::class,'getTypeBasedTotal']);
+Route::get('/getTypeBasedTotalGroupedByLocation', [DashBoardController::class,'getTypeBasedTotalForLocations']);
+
 Route::get('/getReconcillationData', [DashBoardController::class,'getReconcillationData']);
 
 
+Route::get('/getfilterdatas', [DashBoardController::class,'getFilteringData']);
 
