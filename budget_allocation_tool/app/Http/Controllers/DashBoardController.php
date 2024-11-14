@@ -119,20 +119,26 @@ class DashBoardController extends Controller
         
 
         // this is for section where it can be shown using bar chart (SECTION ONe) . 
-        $startDate = Carbon::parse($request['filter_start_date']);
-        
+        $startDate = Carbon::parse($request['filter_start_date']);        
         $endDate= Carbon::parse($request['filter_end_date']);
         $selected_fund_codes=$request['selected_fund_codes'];
-        $locationNames=$request['location_name'];
+        $selected_locations=$request['selected_locations'];
 
         $query=  Payroll::select(
             'type',
             DB::raw('SUM(amount_birr) as total_amount_birr'),
             DB::raw('SUM(amount_usd) as total_amount_usd')
-        ) ->whereBetween('date', [$startDate, $endDate]);
+        ) 
+        ->whereBetween('date', [$startDate, $endDate]) 
+        ->join('employees', 'payrolls.employee_id', '=', 'employees.id');
+        
         
         if ($selected_fund_codes && count($selected_fund_codes) > 0) {
             $query->whereIn('fund_no', $selected_fund_codes);
+        }
+
+        if (!empty($selected_locations) && count($selected_locations) > 0) {
+            $query->whereIn('employees.location_name', $selected_locations);
         }
 
         
@@ -154,7 +160,7 @@ class DashBoardController extends Controller
         
         $endDate= Carbon::parse($request['filter_end_date']);
         $selected_fund_codes=$request['selected_fund_codes'];
-        $locationNames=$request['location_name'];
+        $selected_locations=$request['selected_locations'];
 
 
         //  determine the grouping period
@@ -181,16 +187,17 @@ class DashBoardController extends Controller
                             DB::raw('SUM(amount_usd) as total_amount_usd')
                         )
                       ->whereIn('type', ['salary', 'pf', 'pension'])
-                      ->whereBetween('date', [$startDate, $endDate]);
+                      ->whereBetween('date', [$startDate, $endDate])
+                      ->join('employees', 'payrolls.employee_id', '=', 'employees.id');
+                      
                       
 
             if ($selected_fund_codes && count($selected_fund_codes) > 0) {
                 $query->whereIn('fund_no', $selected_fund_codes);
             }
-            // // Apply location filter if specified
-            // if (!empty($locationNames)) {
-            //     $query->whereIn('employees.location_name', $locationNames);
-            // }
+            if (!empty($selected_locations) && count($selected_locations) > 0) {
+                $query->whereIn('employees.location_name', $selected_locations);
+            }
             return $query->groupBy('period')->get();
     }
 
