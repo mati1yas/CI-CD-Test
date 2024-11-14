@@ -1,11 +1,16 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashBoardController;
+use App\Http\Controllers\UserController;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Mail\ResetPassword;
-use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\RolePermissionController;
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -39,4 +44,64 @@ Route::post('/forgot-password', [ForgotPasswordController::class,'forgotPassword
 Route::post('/prompt-user-to-reset', [ForgotPasswordController::class,'forgotPassword']);
 Route::post('/reset-password', [ForgotPasswordController::class,'resetPassword']);
 Route::middleware('auth:sanctum')->post('/change-password', [ForgotPasswordController::class, 'changePassword']);
+
+
+
+
+Route::get('/sectoremployees', [DashBoardController::class,'getEmployeeCountBySector']);
+
+Route::get('/glaccountamount', [DashBoardController::class,'getAmountsByGLAccount']);
+
+
+Route::get('/getAggregatedPayrollData', [DashBoardController::class,'getAggregatedPayrollData']);
+
+
+
+
+Route::get('/getTypeBasedTotal', [DashBoardController::class,'getTypeBasedTotal']);
+Route::get('/getTypeBasedTotalGroupedByLocation', [DashBoardController::class,'getTypeBasedTotalForLocations']);
+
+Route::get('/getReconcillationData', [DashBoardController::class,'getReconcillationData']);
+
+
+// role and permission related 
+// route for get all users permision and roles permissions
+
+
+Route::get('/users',[UserController::class,'getAllUsersWithRolesAndPermissions']);
+Route::post('/createroles'  ,   [RolePermissionController::class,'createRoles']);
+
+Route::post('/deleteroles',[RolePermissionController::class,'deleteRoles']);  
+
+Route::post('/assignroletouser',[RolePermissionController::class,'assignRoleToUser']);    
+Route::post('/revokerolefromuser',[RolePermissionController::class,'revokeRoleFromUser']);
+Route::post('/getroleusers',[RolePermissionController::class,'getRoleUsers']);
+Route::post('/getuserroles',[RolePermissionController::class,'getUserRoles']);
+
+
+Route::get('/getroles',[RolePermissionController::class,'getRoles']);
+
+
+
+
+// role and permission related 
+// route for get all users permision and roles permissions
+
+
+Route::get('/users',[UserController::class,'getAllUsersWithRolesAndPermissions']);
+Route::post('/createroles'  ,   [RolePermissionController::class,'createRoles']);
+
+Route::post('/deleteroles',[RolePermissionController::class,'deleteRoles']);  
+
+Route::post('/assignroletouser',[RolePermissionController::class,'assignRoleToUser']);    
+Route::post('/revokerolefromuser',[RolePermissionController::class,'revokeRoleFromUser']);
+Route::post('/getroleusers',[RolePermissionController::class,'getRoleUsers']);
+Route::post('/getuserroles',[RolePermissionController::class,'getUserRoles']);
+
+
+Route::get('/getroles',[RolePermissionController::class,'getRoles']);
+
+
+
+Route::get('/getfilterdatas', [DashBoardController::class,'getFilteringData']);
 

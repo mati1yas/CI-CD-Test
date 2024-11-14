@@ -27,7 +27,8 @@ class ExcelController extends Controller
 
             'date_picker'=> "required",
             "document_number"=>"required",
-            "external_doc_reference"=>"required"
+            "external_doc_reference"=>"required",
+             "exchange_rate"=>"required"
         ]);
         
         
@@ -39,6 +40,7 @@ class ExcelController extends Controller
         $submission_date=  $request["date_picker"];
         $doc_number= $request["document_number"];
         $external_doc_reference= $request["external_doc_reference"];
+        $exchange_rate=  $request["exchange_rate"];
 
         
         
@@ -70,7 +72,7 @@ class ExcelController extends Controller
         // return $fundData;
         
         $service = new BudgetAllocationService();
-        $processedData = $service->distributePayments($employees, $fundData,$submission_date,$doc_number,$external_doc_reference);
+        $processedData = $service->distributePayments($employees, $fundData,$submission_date,$doc_number,$external_doc_reference,$exchange_rate);
         // return $processedData;
         $export = new EmployeeExport($processedData);
 
