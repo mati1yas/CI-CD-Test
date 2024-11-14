@@ -59,6 +59,8 @@ Route::get('/getAggregatedPayrollData', [DashBoardController::class,'getAggregat
 
 
 Route::get('/getTypeBasedTotal', [DashBoardController::class,'getTypeBasedTotal']);
+Route::get('/getTypeBasedTotalGroupedByLocation', [DashBoardController::class,'getTypeBasedTotalForLocations']);
+
 Route::get('/getReconcillationData', [DashBoardController::class,'getReconcillationData']);
 
 
@@ -82,4 +84,24 @@ Route::get('/getroles',[RolePermissionController::class,'getRoles']);
 
 
 
+// role and permission related 
+// route for get all users permision and roles permissions
+
+
+Route::get('/users',[UserController::class,'getAllUsersWithRolesAndPermissions']);
+Route::post('/createroles'  ,   [RolePermissionController::class,'createRoles']);
+
+Route::post('/deleteroles',[RolePermissionController::class,'deleteRoles']);  
+
+Route::post('/assignroletouser',[RolePermissionController::class,'assignRoleToUser']);    
+Route::post('/revokerolefromuser',[RolePermissionController::class,'revokeRoleFromUser']);
+Route::post('/getroleusers',[RolePermissionController::class,'getRoleUsers']);
+Route::post('/getuserroles',[RolePermissionController::class,'getUserRoles']);
+
+
+Route::get('/getroles',[RolePermissionController::class,'getRoles']);
+
+
+
+Route::get('/getfilterdatas', [DashBoardController::class,'getFilteringData']);
 
