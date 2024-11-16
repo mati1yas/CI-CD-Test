@@ -9,6 +9,8 @@ use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Mail\ResetPassword;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\LogController;
+
 
 
 /*
@@ -105,3 +107,10 @@ Route::get('/getroles',[RolePermissionController::class,'getRoles']);
 
 Route::get('/getfilterdatas', [DashBoardController::class,'getFilteringData']);
 
+
+
+// LOG RELATED ENDPOINTS 
+// middleware('auth:sanctum')->
+Route::post('/createlog',[LogController::class,'createLog']);
+Route::get('/getlogs',[LogController::class,'getLogs']);
+Route::get('/getuserlogs',[LogController::class,'getUserLogs']);   // requires user id . 
