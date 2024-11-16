@@ -46,10 +46,10 @@ class BudgetAllocationImport implements ToCollection, WithMultipleSheets
                 $this->fundData[$row[1]]=[];
             };
             $user_id=$row[1];
-            $fund_name = $row[10];
-            $budget_line = $row[11];    
-            $fringe_line=$row[12];
-            $loe_percentage=$row[13];
+            $fund_name = $row[10];   // K 
+            $budget_line = $row[11]; // L 
+            $fringe_line=$row[12];   // M
+            $loe_percentage=$row[13]; // N
 
 
             $this->fundData[$user_id][] = [

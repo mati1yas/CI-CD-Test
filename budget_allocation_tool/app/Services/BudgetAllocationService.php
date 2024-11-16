@@ -135,7 +135,7 @@ class BudgetAllocationService
         if (in_array($type, $list_of_dedudctions)){
             $fund_no="GEN";
         }else{
-            $fund_no = $fund!=null ?   $fund['fund_name']:"";              
+            $fund_no = $fund!=null ?   $et.$fund['fund_name']:"";              
         }
 
 
