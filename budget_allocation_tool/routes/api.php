@@ -33,6 +33,7 @@ Route::get('/', function () {
 //TODO will change the route name . 
 Route::post('/import-excel', [ExcelController::class,'importExcel']);
 
+Route::post('/generate-tax-declaration-template', [ExcelController::class,'generateTaxDeclarationTemplate']);
 
 
 

@@ -35,11 +35,11 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
             // Example: Process each row
             // Assuming your Excel has columns like 'name' and 'email'
             $count+=1;
-            if ($count<8) continue;
+            if ($count<5) continue;
             if ($row[0]==null) continue;
-            $id = $row[0];
-            $name = $row[1];    
-            $working_place=$row[2];
+            $id = $row[1];
+            $name = $row[2];    
+            $working_place=$row[0];  //TODO should be removed 
             $position=$row[3];
             $department=$row[4];
             $location= $this->getLocation($id);//  $row[];
@@ -61,7 +61,7 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
             // net pay and difference to be calculated ;
 
             $this->employees[] = [
-                "id" => $id,
+                "id" => "$id",
                 "name" => $name,
                 "working_place" => $working_place,
                 "position" => $position,
