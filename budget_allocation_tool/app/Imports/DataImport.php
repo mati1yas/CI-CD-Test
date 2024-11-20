@@ -35,36 +35,39 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
             // Example: Process each row
             // Assuming your Excel has columns like 'name' and 'email'
             $count+=1;
-            if ($count<8) continue;
+            if ($count<5) continue;
             if ($row[0]==null) continue;
-            $id = $row[0];
-            $name = $row[1];    
-            $working_place=$row[2];
-            $position=$row[4];
-            $department=$row[5];
+            $id = $row[1];
+            $name = $row[2];    
+            $working_place=$row[0];  //TODO should be removed 
+            $position=$row[3];
+            $department=$row[4];
             $location= $this->getLocation($id);//  $row[];
-            $salary_ETB=$row[37];
-            $pension_7=$row[32];
-            $pension_11=$row[33];
+            // TODO point to the right column 
+            $gross_salary=$row[17];   // this value is in dollar.
+            $salary_ETB=$row[32];
+            $pension_7=$row[24];
+            $pension_11=$row[25];
             $pension_total= $pension_7+$pension_11;
-            $PF_employee=$row[34];
-            $PF_employer=$row[35];
-            $PF_total=$PF_employee+$PF_employer;
-            $net_pay= $row[41];
-            $tax_ETB=$row[31]??0;
-            $advance_on_salary =$row[39]??0;
-            $other_deduction =$row[40]??0;
+            $PF_employee=$row[21];
+            $PF_employer=$row[22];
+            $PF_total=$PF_employee+$PF_employer;  // values in dollar . 
+            $net_pay= $row[34];
+            $tax_ETB=$row[20]??0;
+            $advance_on_salary =$row[28]??0;
+            $other_deduction =$row[29]??0;
 
             
             // net pay and difference to be calculated ;
 
             $this->employees[] = [
-                "id" => $id,
+                "id" => "$id",
                 "name" => $name,
                 "working_place" => $working_place,
                 "position" => $position,
                 "department" => $department,
                 "location" => $location,
+                "gross_salary"=>$gross_salary,
                 "salary" => $salary_ETB,
                 "pension_11"=> $pension_11,
                 "pension_total" => $pension_total,
