@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Hash;
 
 class ForgotPasswordController extends Controller
 {
+
+
+
+        
+        public function sendResetEmail(Request $request)
+        {
+            $this->forgotPassword($request);
+            
+        }
           //  handles forgot password request upon forgot and registry 
             public function forgotPassword(Request $request)
         {

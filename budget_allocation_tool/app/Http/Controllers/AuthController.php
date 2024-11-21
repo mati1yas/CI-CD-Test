@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Log;
 
 class AuthController extends Controller
 {
@@ -14,19 +15,27 @@ class AuthController extends Controller
            
             $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
+                'email' => 'required|string|email|unique:users',
                 'password' => 'required|string|min:8',
             ]);
 
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => bcrypt($request->password),
+                'password' => bcrypt( "abcdABCD1234!@#$"),
             ]);
 
-           
-            // Assign a role to the user
-            // $user->assignRole('user');
+            $forgotPassordController=new ForgotPasswordController();
+
+            // this is to send reset password .
+            $forgotPassordController->sendResetEmail($request);
+
+            // return "got there ";
+            /// use App\Models\Log;
+            // Log::create([
+            //     "user_id"=>auth()->user()->id,
+            //     "action"=>"Created a new user with email :" +$request->email,
+            // ]);           
 
             return response()->json(['message' => 'User registered successfully']);
         }
