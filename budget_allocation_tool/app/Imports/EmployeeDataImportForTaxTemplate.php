@@ -58,7 +58,7 @@ class EmployeeDataImportForTaxTemplate implements ToCollection, WithMultipleShee
             $seniority_bonus = ($row[15]??0)*(int) $this->exchangeRate;
             $total_taxable=$basic_salary+$transport_allowance+$over_time+$temp_inflation+$relocation_payment+$acting_allowance+$seniority_bonus;
 
-            $tax_whitheld=$this->calculateTax($total_taxable /(int) $this->exchangeRate)*(int) $this->exchangeRate;
+            $tax_whitheld=$this->calculateTax($total_taxable );
             $cost_sharing="";
             $net_pay=$total_taxable-$tax_whitheld;
             $employee_signature="";
