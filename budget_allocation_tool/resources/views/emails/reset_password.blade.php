@@ -15,7 +15,7 @@ For security reasons, we recommend resetting your password promptly. Do not shar
 
 <br>
 <div style="text-align: center;">
-    <a href="https://actionaccounting-439f0.web.app/#/" 
+    <a href="https://actionaccounting-439f0.web.app/#/login" 
        style="display: inline-block; padding: 10px 20px; font-size: 16px; text-align: center; 
               text-decoration: none; color: #fff; background-color: #28a745; border-radius: 5px; 
               transition: background-color 0.3s;" 
