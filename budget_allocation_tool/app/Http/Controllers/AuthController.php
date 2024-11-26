@@ -30,12 +30,12 @@ class AuthController extends Controller
             // this is to send reset password .
             $forgotPassordController->sendResetEmail($request);
 
-            // return "got there ";
+           
             /// use App\Models\Log;
-            // Log::create([
-            //     "user_id"=>auth()->user()->id,
-            //     "action"=>"Created a new user with email :" +$request->email,
-            // ]);           
+            Log::create([
+                "user_id"=>auth()->user()->id,
+                "action"=>"Created a new user with email :" +$request->email,
+            ]);           
 
             return response()->json(['message' => 'User registered successfully']);
         }

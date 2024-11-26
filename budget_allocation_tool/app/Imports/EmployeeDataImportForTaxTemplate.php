@@ -37,7 +37,7 @@ class EmployeeDataImportForTaxTemplate implements ToCollection, WithMultipleShee
     {
 
         $count=0;
-        // return $this->exchangeRate;
+        $this->exchangeRate=filter_var($this->exchangeRate, FILTER_SANITIZE_NUMBER_INT);;
         $row_no=1;
         foreach ($rows as $row) 
         {
@@ -49,16 +49,17 @@ class EmployeeDataImportForTaxTemplate implements ToCollection, WithMultipleShee
 
             $name = $row[2];
             $date = $this->date;
-            $basic_salary=($row[8]??0 )*$this->exchangeRate;
-            $transport_allowance=$row[10]??0;
-            $over_time=$row[9]??0;
-            $temp_inflation=$row[13]??0;
-            $relocation_payment=$row[12]??0;
-            $acting_allowance =$row[14]??0;
-            $seniority_bonus = $row[15]??0;
+            $basic_salary=($row[8] ??0)* $this->exchangeRate;
+           
+            $transport_allowance=($row[10]??0)* $this->exchangeRate;
+            $over_time=($row[9]??0)*$this->exchangeRate;
+            $temp_inflation=($row[13]??0)*$this->exchangeRate;
+            $relocation_payment=($row[12]??0)*$this->exchangeRate;
+            $acting_allowance =($row[14]??0)*$this->exchangeRate;
+            $seniority_bonus = ($row[15]??0)*$this->exchangeRate;
             $total_taxable=$basic_salary+$transport_allowance+$over_time+$temp_inflation+$relocation_payment+$acting_allowance+$seniority_bonus;
-
-            $tax_whitheld=$this->calculateTax($total_taxable);
+           
+            $tax_whitheld=$this->calculateTax($total_taxable );
             $cost_sharing="";
             $net_pay=$total_taxable-$tax_whitheld;
             $employee_signature="";
