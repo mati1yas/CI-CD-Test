@@ -24,20 +24,20 @@ use App\Http\Controllers\LogController;
 |
 */
 
-Route::get('/', function () {
-    return "aah staging api working fine";
+Route::middleware('auth:sanctum')->get('/', function () {
+    // return response()->json(["user_id"=>auth()->user(),]);
 });
 
 
 
 //TODO will change the route name . 
-Route::post('/import-excel', [ExcelController::class,'importExcel']);
+Route::middleware('auth:sanctum')->post('/import-excel', [ExcelController::class,'importExcel']);
 
-Route::post('/generate-tax-declaration-template', [ExcelController::class,'generateTaxDeclarationTemplate']);
+Route::middleware('auth:sanctum')->post('/generate-tax-declaration-template', [ExcelController::class,'generateTaxDeclarationTemplate']);
 
 
 
-Route::post('/register', [AuthController::class,'register']);
+Route::middleware('auth:sanctum')->post('/register', [AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);
 
 
@@ -71,42 +71,22 @@ Route::get('/getReconcillationData', [DashBoardController::class,'getReconcillat
 // route for get all users permision and roles permissions
 
 
-Route::get('/users',[UserController::class,'getAllUsersWithRolesAndPermissions']);
-Route::post('/createroles'  ,   [RolePermissionController::class,'createRoles']);
+Route::middleware('auth:sanctum')->get('/users',[UserController::class,'getAllUsersWithRolesAndPermissions']);
+Route::middleware('auth:sanctum')->post('/createroles'  ,   [RolePermissionController::class,'createRoles']);
 
-Route::post('/deleteroles',[RolePermissionController::class,'deleteRoles']);  
+Route::middleware('auth:sanctum')->post('/deleteroles',[RolePermissionController::class,'deleteRoles']);  
 
-Route::post('/assignroletouser',[RolePermissionController::class,'assignRoleToUser']);    
-Route::post('/revokerolefromuser',[RolePermissionController::class,'revokeRoleFromUser']);
-Route::post('/getroleusers',[RolePermissionController::class,'getRoleUsers']);
-Route::post('/getuserroles',[RolePermissionController::class,'getUserRoles']);
-
-
-Route::get('/getroles',[RolePermissionController::class,'getRoles']);
-
-
-
-
-// role and permission related 
-// route for get all users permision and roles permissions
-
-
-Route::get('/users',[UserController::class,'getAllUsersWithRolesAndPermissions']);
-Route::post('/createroles'  ,   [RolePermissionController::class,'createRoles']);
-
-Route::post('/deleteroles',[RolePermissionController::class,'deleteRoles']);  
-
-Route::post('/assignroletouser',[RolePermissionController::class,'assignRoleToUser']);    
-Route::post('/revokerolefromuser',[RolePermissionController::class,'revokeRoleFromUser']);
-Route::post('/getroleusers',[RolePermissionController::class,'getRoleUsers']);
-Route::post('/getuserroles',[RolePermissionController::class,'getUserRoles']);
+Route::middleware('auth:sanctum')->post('/assignroletouser',[RolePermissionController::class,'assignRoleToUser']);    
+Route::middleware('auth:sanctum')->post('/revokerolefromuser',[RolePermissionController::class,'revokeRoleFromUser']);
+Route::middleware('auth:sanctum')->post('/getroleusers',[RolePermissionController::class,'getRoleUsers']);
+Route::middleware('auth:sanctum')->post('/getuserroles',[RolePermissionController::class,'getUserRoles']);
 
 
 Route::get('/getroles',[RolePermissionController::class,'getRoles']);
 
 
 
-Route::get('/getfilterdatas', [DashBoardController::class,'getFilteringData']);
+
 
 
 

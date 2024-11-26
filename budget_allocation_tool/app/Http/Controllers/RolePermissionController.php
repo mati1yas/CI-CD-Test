@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
-
+use App\Models\Log;
 class RolePermissionController extends Controller
 {
     // method to create new roles. 
@@ -19,6 +19,12 @@ class RolePermissionController extends Controller
            
                 $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
             }
+
+            Log::create([
+                "user_id"=>auth()->user()->id,
+                "action"=>"created all roles"
+    
+            ]);
     
             return response()->json(['message' => 'Roles created successfully'], 200);
         } catch (\Exception $e) {
@@ -61,14 +67,25 @@ class RolePermissionController extends Controller
            
             $user = User::where('email', $user_email)->firstOrFail();
             $role = Role::where('name', $roleName)->firstOrFail();
+            // return $role;   
+              
+
+            $user->assignRole($role);
+
+            // use App\Models\Log;
+            Log::create([
+                "user_id"=>auth()->user()->id,
+                "action"=>"Assigned "+$roleName+"to"+$user_email
+    
+            ]);
+    
             
         } catch (\Exception $e) {
             return response()->json(['message' => 'User or role not found'], 404);
         }
 
         // Attach the role to the user
-        $user->assignRole($role);
-
+      
         return response()->json(['message' => 'Role assigned to user successfully']);
     }
 
@@ -86,7 +103,12 @@ class RolePermissionController extends Controller
             $role = Role::where('name', $roleName)->firstOrFail();
 
             $user->removeRole($role);
+            // use App\Models\Log;
+            Log::create([
+                "user_id"=>auth()->user()->id,
+                "action"=>"Revoked "+$roleName+"from"+$user_email
 
+            ]);
             return response()->json(['message' => 'Role revoked from user successfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to revoke role from user', ], 500);

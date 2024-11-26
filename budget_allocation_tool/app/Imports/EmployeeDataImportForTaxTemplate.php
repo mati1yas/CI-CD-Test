@@ -49,7 +49,7 @@ class EmployeeDataImportForTaxTemplate implements ToCollection, WithMultipleShee
 
             $name = $row[2];
             $date = $this->date;
-            $basic_salary=($row[8] )* $this->exchangeRate;
+            $basic_salary=($row[8] ??0)* $this->exchangeRate;
            
             $transport_allowance=($row[10]??0)* $this->exchangeRate;
             $over_time=($row[9]??0)*$this->exchangeRate;

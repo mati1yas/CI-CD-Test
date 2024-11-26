@@ -12,6 +12,8 @@ use App\Imports\BudgetAllocationImport;
 use App\Imports\SpecificSheetsImport;
 use App\Services\BudgetAllocationService;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Log;
+
 
 
 class ExcelController extends Controller
@@ -59,10 +61,6 @@ class ExcelController extends Controller
         Excel::import($employeeImport, $payroll_file);
         $employees = $employeeImport->employees;
         
-        
-        
-        
-        
         // return $employees;
 
         $budgetAllocationImport = new BudgetAllocationImport("LOE Data");
@@ -77,9 +75,13 @@ class ExcelController extends Controller
         
         $service = new BudgetAllocationService();
         $processedData = $service->distributePayments($employees, $fundData,$submission_date,$doc_number,$external_doc_reference,$exchange_rate);
-        return $processedData;
+        // return $processedData;
         $export = new EmployeeExport($processedData);
+        Log::create([
+            "user_id"=>auth()->user()->id,
+            "action"=>"Generate payroll allocation data"
 
+        ]);
         
         return Excel::download($export, 'distributed_salaries.csv');  //xlsx
     }
@@ -97,13 +99,18 @@ class ExcelController extends Controller
         $payroll_file = $request->file('payroll_data');
         $exchange_rate=  $request["exchange_rate"];
         $submission_date=  $request["date_picker"];
-
+        // return intval($exchange_rate);
 
 
         // return "here";
         $employeeImport = new EmployeeDataImportForTaxTemplate("Payroll Data",$exchange_rate,$submission_date);
         Excel::import($employeeImport, $payroll_file);
         $employees = $employeeImport->employees;
+        Log::create([
+            "user_id"=>auth()->user()->id,
+            "action"=>"Generate Tax template"
+
+        ]);
         return $employees;
         
         
