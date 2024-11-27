@@ -9,6 +9,7 @@ class FileUploadDownloadController extends Controller
     public function uploadFilesToServer(Request $request){
         // Validate files  
 
+       
     
     // $request->validate([  
     //     'file1' => 'required|file|mimes:xls,xlsx|max:2048', // Validate file 1  
@@ -28,8 +29,8 @@ class FileUploadDownloadController extends Controller
     $file2NameSafe = preg_replace('/[^A-Za-z0-9\-]/', '-', strtolower(trim($file2Name)));  
 
    
-    $file1Path = $request->file('file1')->storeAs('uploads', $file1Name, 'public');  
-    $file2Path = $request->file('file2')->storeAs('uploads', $file2Name, 'public');   
+    $file1Path = $request->file('file1')->storeAs('uploads', $file1NameSafe, 'public');  
+    $file2Path = $request->file('file2')->storeAs('uploads', $file2NameSafe, 'public');   
 
     // Generate URLs for the uploaded files  
     $file1Url = Storage::url($file1Path);  
