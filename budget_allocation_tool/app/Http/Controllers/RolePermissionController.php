@@ -75,7 +75,7 @@ class RolePermissionController extends Controller
             // use App\Models\Log;
             Log::create([
                 "user_id"=>auth()->user()->id,
-                "action"=>"Assigned "+$roleName+"to"+$user_email
+                "action"=>"Assigned ".$roleName."to".$user_email
     
             ]);
     
@@ -106,7 +106,7 @@ class RolePermissionController extends Controller
             // use App\Models\Log;
             Log::create([
                 "user_id"=>auth()->user()->id,
-                "action"=>"Revoked "+$roleName+"from"+$user_email
+                "action"=>"Revoked ".$roleName+"from".$user_email
 
             ]);
             return response()->json(['message' => 'Role revoked from user successfully'], 200);

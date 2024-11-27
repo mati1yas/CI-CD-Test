@@ -34,7 +34,7 @@ class AuthController extends Controller
             /// use App\Models\Log;
             Log::create([
                 "user_id"=>auth()->user()->id,
-                "action"=>"Created a new user with email :" +$request->email,
+                "action"=>"Created a new user with email :" .$request->email,
             ]);           
 
             return response()->json(['message' => 'User registered successfully']);
