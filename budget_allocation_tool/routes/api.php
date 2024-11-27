@@ -77,7 +77,7 @@ Route::get('/getReconcillationData', [DashBoardController::class,'getReconcillat
 // route for get all users permision and roles permissions
 
 
-Route::middleware('auth:sanctum')->get('/users',[UserController::class,'getAllUsersWithRolesAndPermissions']);
+Route::get('/users',[UserController::class,'getAllUsersWithRolesAndPermissions']);
 Route::middleware('auth:sanctum')->post('/createroles'  ,   [RolePermissionController::class,'createRoles']);
 
 Route::middleware('auth:sanctum')->post('/deleteroles',[RolePermissionController::class,'deleteRoles']);  
