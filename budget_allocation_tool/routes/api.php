@@ -12,6 +12,8 @@ use App\Mail\ResetPassword;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\LogController;
 use Illuminate\Http\Request;  
+use App\Http\Controllers\LookUpController;
+
 
 
 
@@ -101,3 +103,11 @@ Route::get('/getroles',[RolePermissionController::class,'getRoles']);
 Route::post('/createlog',[LogController::class,'createLog']);
 Route::get('/getlogs',[LogController::class,'getLogs']);
 Route::get('/getuserlogs',[LogController::class,'getUserLogs']);   // requires user id . 
+
+
+
+
+//LOOK UP RELATED 
+
+Route::post('/create-look-up', [LookUpController::class, 'createType']); 
+Route::get('/get-all-look-up', [LookUpController::class, 'fetchAllMaps']);
