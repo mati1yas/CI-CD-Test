@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Log;
+use Spatie\Permission\Models\Role;
+
 
 class AuthController extends Controller
 {
@@ -34,7 +36,7 @@ class AuthController extends Controller
             /// use App\Models\Log;
             Log::create([
                 "user_id"=>auth()->user()->id,
-                "action"=>"Created a new user with email :" +$request->email,
+                "action"=>"Created a new user with email :" .$request->email,
             ]);           
 
             return response()->json(['message' => 'User registered successfully']);
@@ -55,9 +57,19 @@ class AuthController extends Controller
 
                 $user = Auth::user();
                 $token =$user->createToken('auth_token')->plainTextToken;
-                // $token="token-value";
 
-                return response()->json(['token' => $token, 'user'=>$user]);
+                try {
+                    $roles = $user->roles()->pluck('name');
+    
+                    
+                } catch (\Throwable $th) {
+                    $roles = "could not fetch roles";
+                    $permissions = "could not fetch permissions";
+                }
+                // $token="token-value";
+               
+                
+                return response()->json(['token' => $token, 'user'=>$user, 'roles' => $roles, ]);
             }
 
 
