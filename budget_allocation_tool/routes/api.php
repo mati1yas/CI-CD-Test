@@ -6,10 +6,13 @@ use App\Http\Controllers\UserController;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExcelController;
+use App\Http\Controllers\FileUploadDownloadController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Mail\ResetPassword;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\LogController;
+use Illuminate\Http\Request;  
+
 
 
 
@@ -24,10 +27,13 @@ use App\Http\Controllers\LogController;
 |
 */
 
+
+
 Route::middleware('auth:sanctum')->get('/', function () {
     // return response()->json(["user_id"=>auth()->user(),]);
 });
 
+Route::post('/upload-file-to-server', [FileUploadDownloadController::class,'uploadFilesToServer']);  
 
 
 //TODO will change the route name . 
