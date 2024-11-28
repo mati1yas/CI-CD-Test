@@ -24,15 +24,16 @@ class FileUploadDownloadController extends Controller
     $file1Name = $file1->getClientOriginalName();  
     $file2Name = $file2->getClientOriginalName();  
 
-    // Make the filenames URL-safe (replace spaces with dashes and remove special characters)  
-    $file1NameSafe = preg_replace('/[^A-Za-z0-9\-]/', '-', strtolower(trim($file1Name)));  
-    $file2NameSafe = preg_replace('/[^A-Za-z0-9\-]/', '-', strtolower(trim($file2Name)));  
+    $file1Extension = $file1->getClientOriginalExtension();  
+    $file2Extension = $file2->getClientOriginalExtension();  
 
-   
+    // Make the filenames URL-safe without changing the extension  
+    $file1NameSafe = preg_replace('/[^A-Za-z0-9\-]/', '-', strtolower(trim(pathinfo($file1Name, PATHINFO_FILENAME)))) . '.' . $file1Extension;  
+    $file2NameSafe = preg_replace('/[^A-Za-z0-9\-]/', '-', strtolower(trim(pathinfo($file2Name, PATHINFO_FILENAME)))) . '.' . $file2Extension;   
+
     $file1Path = $request->file('file1')->storeAs('uploads', $file1NameSafe, 'public');  
     $file2Path = $request->file('file2')->storeAs('uploads', $file2NameSafe, 'public');   
-
-    // Generate URLs for the uploaded files  
+  // Generate URLs for the uploaded files  
     $file1Url = Storage::url($file1Path);  
     $file2Url = Storage::url($file2Path);  
   
