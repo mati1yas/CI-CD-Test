@@ -30,13 +30,20 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
     {
 
         $count=0;
+        $empty_rows=0;
+
+        
         foreach ($rows as $row) 
         {
             // Example: Process each row
             // Assuming your Excel has columns like 'name' and 'email'
             $count+=1;
+            
             if ($count<5) continue;
-            if ($row[0]==null) continue;
+            if ($row[0]==null){ 
+                $empty_rows+=1;
+                if ($empty_rows>=10)  {break;};
+                continue;}
             $id = $row[1];
             $name = $row[2];    
             $working_place=$row[0];  //TODO should be removed 

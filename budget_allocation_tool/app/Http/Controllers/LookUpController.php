@@ -35,6 +35,33 @@ class LookUpController extends Controller
         ], 201);
     }
 
+
+    public function deleteType(Request $request)  
+    {  
+        // Validate the request data for 'type' and 'key'  
+        $validated = $request->validate([  
+            'type' => 'required|string|max:50',  
+            'key' => 'required|string|max:50',  
+        ]);  
+
+        // Attempt to find and delete the lookup entry  
+        $lookup = LookUp::where('type', $validated['type'])  
+                        ->where('key', $validated['key'])  
+                        ->first();  
+
+        if ($lookup) {  
+            $lookup->delete();  
+
+            return response()->json([  
+                'message' => 'Mapping deleted successfully',  
+            ], 200);  
+        } else {  
+            return response()->json([  
+                'message' => 'Mapping not found',  
+            ], 404);  
+        }  
+    }
+
     /**
      * Fetch all mappings for a specific type.
      */
