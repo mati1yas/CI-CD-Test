@@ -113,7 +113,7 @@ class BudgetAllocationService
 
     {
         
-        $exchange_rate=filter_var($exchange_rate, FILTER_SANITIZE_NUMBER_INT);
+        $exchange_rate=filter_var($exchange_rate, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         $list_of_dedudctions= ["Income tax","Pension Deduct.","PF Deduct.","Advance Deduct.","Other Deduct.","Net Pay Deduct."];
 
 
