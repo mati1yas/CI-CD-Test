@@ -110,4 +110,6 @@ Route::get('/getuserlogs',[LogController::class,'getUserLogs']);   // requires u
 //LOOK UP RELATED 
 
 Route::post('/create-look-up', [LookUpController::class, 'createType']); 
+Route::delete('/delete-look-up ', [LookUpController::class, 'deleteType']);  
+
 Route::get('/get-all-look-up', [LookUpController::class, 'fetchAllMaps']);
