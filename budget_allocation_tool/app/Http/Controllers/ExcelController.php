@@ -13,6 +13,7 @@ use App\Imports\SpecificSheetsImport;
 use App\Services\BudgetAllocationService;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Log;
+use Illuminate\Validation\ValidationException;  
 
 
 
@@ -24,15 +25,31 @@ class ExcelController extends Controller
 
       
         // Validate that a file has been uploaded
-        $request->validate([
-            'payroll_data' => 'required|mimes:xlsx',
-            'loe_data' => 'required|mimes:xlsx',
-
-            'date_picker'=> "required",
-            "document_number"=>"required",
-            "external_doc_reference"=>"required",
-             "exchange_rate"=>"required"
-        ]);
+        try {  
+            $request->validate([  
+                'payroll_data' => 'required|mimes:xlsx',  
+                'loe_data' => 'required|mimes:xlsx',  
+                'date_picker' => 'required',  
+                'document_number' => 'required',  
+                'external_doc_reference' => 'required',  
+                'exchange_rate' => 'required',  
+            ], [  
+                'payroll_data.required' => 'The payroll data file is required.',  
+                'payroll_data.mimes' => 'The payroll data must be an Excel file (xlsx).',  
+                'loe_data.required' => 'The loe data file is required.',  
+                'loe_data.mimes' => 'The loe data must be an Excel file (xlsx).',  
+                'date_picker.required' => 'Please select a date.',  
+                'document_number.required' => 'Document number is required.',  
+                'external_doc_reference.required' => 'External document reference is required.',  
+                'exchange_rate.required' => 'Exchange rate is required.',  
+            ]);  
+        
+        } catch (ValidationException $e) {  
+            return response()->json([  
+                'message' => 'Validation failed.',  
+                'errors' => $e->errors()  
+            ], 422); // Return a 422 Unprocessable Entity response with validation errors  
+        }
         
         
         $sheetNames = ['Processed', 'GL Acct Lookup']; // Replace with your specific sheet names
@@ -44,6 +61,7 @@ class ExcelController extends Controller
         $doc_number= $request["document_number"];
         $external_doc_reference= $request["external_doc_reference"];
         $exchange_rate=  $request["exchange_rate"];
+
 
         
         
@@ -69,19 +87,22 @@ class ExcelController extends Controller
         
         
         // return  ($fundData);
+      
 
 
         // return response()->json(['emp'=>count($employees),'loe'=>count($fundData)]);
         
         $service = new BudgetAllocationService();
         $processedData = $service->distributePayments($employees, $fundData,$submission_date,$doc_number,$external_doc_reference,$exchange_rate);
-        // return $processedData;
-        $export = new EmployeeExport($processedData);
+        
         Log::create([
             "user_id"=>auth()->user()->id,
             "action"=>"Generate payroll allocation data"
 
         ]);
+        return $processedData;
+        $export = new EmployeeExport($processedData);
+        
         
         return Excel::download($export, 'distributed_salaries.csv');  //xlsx
     }
