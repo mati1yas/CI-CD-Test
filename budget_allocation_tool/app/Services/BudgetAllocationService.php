@@ -380,15 +380,16 @@ public function getDepartmentSector($department_name)
      * @return string
      */
     public function getIdDimension($type,$employee)    {   
-        
+        $emp_id=$employee['id'];
+        $extracted_id_base = substr($emp_id, 0, 2);
         if($type=="Salary"||$type == "PF"||$type=="Pension"||$type=="Advance Deduct."||$type=="Other Deduct."){
             $dimension_6 = $employee['id'];          
 
         }else if($type=="Income tax"){
-            $dimension_6 =  "RA-AA-001";
+            $dimension_6 =  "RA-$extracted_id_base-001";
         }
         else if ($type=="Pension Deduct."){
-            $dimension_6 =  "RA-AA-003";
+            $dimension_6 =  "RA-$extracted_id_base-003";
         } else {
             $dimension_6 = "";
         }
