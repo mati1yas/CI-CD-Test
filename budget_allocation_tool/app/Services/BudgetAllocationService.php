@@ -44,13 +44,15 @@ class BudgetAllocationService
                 $pensionAllocation = $this->calculateAllocation($employee['pension_11'], $fund['loe_percentage']);  
                 $pfAllocation = $this->calculateAllocation($employee['pf_employer'], $fund['loe_percentage']);  
 
-                
+                if($salaryAllocation!=0)
                 $salaryRecords[] = $this->formatRecord($employee, $fund, 'Salary', $salaryAllocation,$date,$doc_number,$doc_reference,$exchange_rate);  
 
                 // Add pension distribution record  
+                if($pensionAllocation!=0)
                 $pensionRecords[] = $this->formatRecord($employee, $fund, 'Pension', $pensionAllocation,$date,$doc_number,$doc_reference,$exchange_rate);  
 
                 // Add PF distribution record  
+                if($pfAllocation!=0)
                 $pfRecords[] = $this->formatRecord($employee, $fund, 'PF', $pfAllocation,$date,$doc_number,$doc_reference,$exchange_rate);  
             }  
 
@@ -69,7 +71,7 @@ class BudgetAllocationService
                 }  
             if($employee["advance_on_salary"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Advance Deduct.",$employee["advance_on_salary"],$date,$doc_number,$doc_reference,$exchange_rate);
             }  
-            if($employee["other_deduction"]!=0){$deductions[]=$this->formatRecord($employee,null,"Other Deduct",$employee["other_deduction"],$date,$doc_number,$doc_reference,$exchange_rate);
+            if($employee["other_deduction"]!=0){$deductions[]=$this->formatRecord($employee,null,"Other Deduct.",$employee["other_deduction"],$date,$doc_number,$doc_reference,$exchange_rate);
             }
             
             if($employee["net_pay"]!=0){
@@ -172,7 +174,7 @@ class BudgetAllocationService
         $year = $date->format('Y'); 
     
         $pos=$employee['position'];
-        $percent= $fund!=null ?  $fund['loe_percentage']:"";
+        $percent= $fund!=null ?  $fund['loe_percentage']*100 : 1;
 
         //  CREATE DIFFERENT DESCRIPTION FOR DEDUCTIONS AND BENEFITS
         if (in_array($type, $list_of_dedudctions)){
