@@ -37,7 +37,8 @@ class EmployeeDataImportForTaxTemplate implements ToCollection, WithMultipleShee
     {
 
         $count=0;
-        $this->exchangeRate=filter_var($this->exchangeRate, FILTER_SANITIZE_NUMBER_INT);;
+
+        $this->exchangeRate=filter_var($this->exchangeRate,  FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);;
         $row_no=1;
         foreach ($rows as $row) 
         {
