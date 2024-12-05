@@ -32,8 +32,12 @@ class AuthController extends Controller
             // this is to send reset password .
             $forgotPassordController->sendResetEmail($request);
 
-           
-            /// use App\Models\Log;
+            $role = Role::where('name', "user")->first();
+            
+
+            $user->assignRole($role);
+            $user['role']=[$role->name];
+            /// use App\Models\Log; 
             Log::create([
                 "user_id"=>auth()->user()->id,
                 "action"=>"Created a new user with email :" .$request->email,
