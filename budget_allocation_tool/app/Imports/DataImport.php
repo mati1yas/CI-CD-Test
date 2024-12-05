@@ -58,7 +58,8 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
             $pension_total= $pension_7+$pension_11;
             $PF_employee=$row[21];
             $PF_employer=$row[22];
-            $PF_total=$PF_employee+$PF_employer;  // values in dollar . 
+            $PF_total= $PF_employee+ $PF_employer; // values in dollar . 
+            // $PF_total=$row[27]; 
             $net_pay= $row[34];
             $tax_ETB=$row[20]??0;
             $advance_on_salary =$row[28]??0;

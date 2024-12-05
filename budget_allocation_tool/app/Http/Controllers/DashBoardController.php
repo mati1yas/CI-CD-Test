@@ -210,11 +210,12 @@ class DashBoardController extends Controller
 
         $results1 = $this->runReconcillationQuery($first_month);
         $results2 = $this->runReconcillationQuery($second_month);
-
+        
+        
         return response()->json(
             [
-                    "first_month" => $results1,
-                    "second_month" => $results2
+                    "first_month" => $results1??[],
+                    "second_month" => $results2??[]
                 ]);
 
        
