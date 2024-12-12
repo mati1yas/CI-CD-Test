@@ -57,9 +57,10 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
             $pension_11=$row[25];
             $pension_total= $pension_7+$pension_11;
             $PF_employee=$row[21];
-            $PF_employer=$row[22];
-            $PF_total= $PF_employee+ $PF_employer; // values in dollar . 
-            // $PF_total=$row[27]; 
+            // $PF_employer=$row[22];
+            $PF_employer=$row[23];
+            // $PF_total= $PF_employee+ $PF_employer; // values in dollar . 
+            $PF_total=$row[27]; 
             $net_pay= $row[34];
             $tax_ETB=$row[20]??0;
             $advance_on_salary =$row[28]??0;
@@ -109,7 +110,8 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
                 break;  
             case "SO":  
                 $result = "ACFUS-ET06";  
-                break;  
+                break;            
+            case "ST":
             case "WH":  
                 $result = "ACFUS-ET07";  
                 break;  
@@ -118,6 +120,9 @@ class DataImport implements ToCollection, WithMultipleSheets,WithCalculatedFormu
                 break;  
             case "TG":  
                 $result = "ACFUS-ET09";  
+                break;
+            case "AS":
+                $result = "ACFUS-ET10";  
                 break;  
             default:  
                 $result = "Invalid ID"; // Handle unexpected values  
