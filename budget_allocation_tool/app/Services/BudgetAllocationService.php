@@ -122,7 +122,7 @@ class BudgetAllocationService
         
         // USER INPUTS . 
         $posting_date =  Carbon::createFromFormat('Y-m-d', $date)->format('m/d/Y'); ;
-        $document_no = $doc_number;
+        $document_no =$this-> reformatDocumentNumber($doc_number,$employee['id']);
         $external_document_no = $doc_reference;
 
         // Static Fields or Fixed Values
@@ -187,18 +187,18 @@ class BudgetAllocationService
         // DISTRIBUTED AMOUNT 
         if (in_array($type, $list_of_dedudctions)){
             $amount = -$amount;
-            if($type=="PF Deduct."){
+            // if($type=="PF Deduct."){
 
-                // this to convert usd based PF value to birr . 
-                $amount*=$exchange_rate;
+            //     // this to convert usd based PF value to birr . 
+            //     $amount*=$exchange_rate;
                 
-            }
+            // }
         }else{
             
             $amount = $amount;
-            if($type=="PF"){
-                $amount*=$exchange_rate;
-            }
+            // if($type=="PF"){
+            //     $amount*=$exchange_rate;
+            // }
 
         }
 
@@ -278,10 +278,27 @@ class BudgetAllocationService
         
     }
 
+    public function reformatDocumentNumber(string $document_number,string $emp_id){
+        $extracted_id = substr($emp_id, 0, 2);
+        // $deptShort = "NUT"; 
+        if($extracted_id=="AS"){
+            $extracted_id="BG";
+        } else if($extracted_id=="ST"){
+            $extracted_id="WH";
+        }
+
+        return $document_number."-".$extracted_id;
+
+    }
 
     public function getInitiative(string $deptShort,string $emp_id){
         $extracted_id = substr($emp_id, 0, 2);
-        // $deptShort = "NUT";  
+        // $deptShort = "NUT"; 
+        if($extracted_id=="AS"){
+            $extracted_id="BG";
+        } else if($extracted_id=="ST"){
+            $extracted_id="WH";
+        }
 
         if ($deptShort == "PRO" || $deptShort == "PON") {  
             $result = $extracted_id . "N01";  
