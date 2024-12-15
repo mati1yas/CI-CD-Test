@@ -44,13 +44,15 @@ class BudgetAllocationService
                 $pensionAllocation = $this->calculateAllocation($employee['pension_11'], $fund['loe_percentage']);  
                 $pfAllocation = $this->calculateAllocation($employee['pf_employer'], $fund['loe_percentage']);  
 
-                
+                if($salaryAllocation!=0)
                 $salaryRecords[] = $this->formatRecord($employee, $fund, 'Salary', $salaryAllocation,$date,$doc_number,$doc_reference,$exchange_rate);  
 
                 // Add pension distribution record  
+                if($pensionAllocation!=0)
                 $pensionRecords[] = $this->formatRecord($employee, $fund, 'Pension', $pensionAllocation,$date,$doc_number,$doc_reference,$exchange_rate);  
 
                 // Add PF distribution record  
+                if($pfAllocation!=0)
                 $pfRecords[] = $this->formatRecord($employee, $fund, 'PF', $pfAllocation,$date,$doc_number,$doc_reference,$exchange_rate);  
             }  
 
@@ -69,7 +71,7 @@ class BudgetAllocationService
                 }  
             if($employee["advance_on_salary"]!=0){ $deductions[]=$this->formatRecord($employee,null,"Advance Deduct.",$employee["advance_on_salary"],$date,$doc_number,$doc_reference,$exchange_rate);
             }  
-            if($employee["other_deduction"]!=0){$deductions[]=$this->formatRecord($employee,null,"Other Deduct",$employee["other_deduction"],$date,$doc_number,$doc_reference,$exchange_rate);
+            if($employee["other_deduction"]!=0){$deductions[]=$this->formatRecord($employee,null,"Other Deduct.",$employee["other_deduction"],$date,$doc_number,$doc_reference,$exchange_rate);
             }
             
             if($employee["net_pay"]!=0){
@@ -113,14 +115,14 @@ class BudgetAllocationService
 
     {
         
-        $exchange_rate=filter_var($exchange_rate, FILTER_SANITIZE_NUMBER_INT);
+        $exchange_rate=filter_var($exchange_rate, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         $list_of_dedudctions= ["Income tax","Pension Deduct.","PF Deduct.","Advance Deduct.","Other Deduct.","Net Pay Deduct."];
 
 
         
         // USER INPUTS . 
         $posting_date =  Carbon::createFromFormat('Y-m-d', $date)->format('m/d/Y'); ;
-        $document_no = $doc_number;
+        $document_no =$this-> reformatDocumentNumber($doc_number,$employee['id']);
         $external_document_no = $doc_reference;
 
         // Static Fields or Fixed Values
@@ -172,7 +174,7 @@ class BudgetAllocationService
         $year = $date->format('Y'); 
     
         $pos=$employee['position'];
-        $percent= $fund!=null ?  $fund['loe_percentage']:"";
+        $percent= $fund!=null ?  $fund['loe_percentage']*100 : 1;
 
         //  CREATE DIFFERENT DESCRIPTION FOR DEDUCTIONS AND BENEFITS
         if (in_array($type, $list_of_dedudctions)){
@@ -185,18 +187,18 @@ class BudgetAllocationService
         // DISTRIBUTED AMOUNT 
         if (in_array($type, $list_of_dedudctions)){
             $amount = -$amount;
-            if($type=="PF Deduct."){
+            // if($type=="PF Deduct."){
 
-                // this to convert usd based PF value to birr . 
-                $amount*=$exchange_rate;
+            //     // this to convert usd based PF value to birr . 
+            //     $amount*=$exchange_rate;
                 
-            }
+            // }
         }else{
             
             $amount = $amount;
-            if($type=="PF"){
-                $amount*=$exchange_rate;
-            }
+            // if($type=="PF"){
+            //     $amount*=$exchange_rate;
+            // }
 
         }
 
@@ -276,10 +278,27 @@ class BudgetAllocationService
         
     }
 
+    public function reformatDocumentNumber(string $document_number,string $emp_id){
+        $extracted_id = substr($emp_id, 0, 2);
+        // $deptShort = "NUT"; 
+        if($extracted_id=="AS"){
+            $extracted_id="BG";
+        } else if($extracted_id=="ST"){
+            $extracted_id="WH";
+        }
+
+        return $document_number."-".$extracted_id;
+
+    }
 
     public function getInitiative(string $deptShort,string $emp_id){
         $extracted_id = substr($emp_id, 0, 2);
-        // $deptShort = "NUT";  
+        // $deptShort = "NUT"; 
+        if($extracted_id=="AS"){
+            $extracted_id="BG";
+        } else if($extracted_id=="ST"){
+            $extracted_id="WH";
+        }
 
         if ($deptShort == "PRO" || $deptShort == "PON") {  
             $result = $extracted_id . "N01";  
@@ -378,15 +397,16 @@ public function getDepartmentSector($department_name)
      * @return string
      */
     public function getIdDimension($type,$employee)    {   
-        
+        $emp_id=$employee['id'];
+        $extracted_id_base = substr($emp_id, 0, 2);
         if($type=="Salary"||$type == "PF"||$type=="Pension"||$type=="Advance Deduct."||$type=="Other Deduct."){
             $dimension_6 = $employee['id'];          
 
         }else if($type=="Income tax"){
-            $dimension_6 =  "RA-AA-001";
+            $dimension_6 =  "RA-$extracted_id_base-001";
         }
         else if ($type=="Pension Deduct."){
-            $dimension_6 =  "RA-AA-003";
+            $dimension_6 =  "RA-$extracted_id_base-003";
         } else {
             $dimension_6 = "";
         }
