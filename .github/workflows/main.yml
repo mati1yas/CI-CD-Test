@@ -28,6 +28,6 @@ jobs:
       if: github.ref == 'refs/heads/production' # Deploy to production
       uses: SamKirkland/FTP-Deploy-Action@4.0.0
       with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
+        server: ${{ secrets.PRODUCTION_FTP_SERVER }}
+        username: ${{ secrets.PRODUCTION_FTP_USERNAME }}
+        password: ${{ secrets.PRODUCTION_FTP_PASSWORD }}
