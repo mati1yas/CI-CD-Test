@@ -40,7 +40,25 @@ class AppServiceProvider extends ServiceProvider
                  $user = User::create([
                 'name' => "Matiyas Seifu",
                 'email' => "matiyassseifu@gmail.com",
-                'password' => bcrypt("12345678"),
+                'password' => bcrypt(env('SUPER_ADMIN_PASSWORD')),
+            ]);
+
+            // Assign the 'super admin' role to this user if they exist
+            if ($superAdminUser && !$superAdminUser->hasRole('super admin')) {
+                $superAdminUser->assignRole('super admin');
+            }
+
+            // CREATE ANOTHER SUPER ADMIN USER . 
+            $superAdminEmail = "nmengesha@et-actionagainsthunger.org";
+            $superAdminUser = User::where('email', $superAdminEmail)->first();
+
+            
+
+            if(!$superAdminUser) 
+                 $user = User::create([
+                'name' => "Nebiyu Esayas Mengesha",
+                'email' => "nmengesha@et-actionagainsthunger.org",
+                'password' => bcrypt(env('SUPER_ADMIN_PASSWORD')),
             ]);
             
 

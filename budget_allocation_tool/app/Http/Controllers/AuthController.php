@@ -24,7 +24,7 @@ class AuthController extends Controller
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => bcrypt( "abcdABCD1234!@#$"),
+                'password' => bcrypt( env('USER_PASSWORD')),
             ]);
 
             $forgotPassordController=new ForgotPasswordController();
