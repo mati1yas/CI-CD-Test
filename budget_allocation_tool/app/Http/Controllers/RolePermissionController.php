@@ -62,6 +62,10 @@ class RolePermissionController extends Controller
         $user_email = $request->input('email');
         $roleName = $request->input('role');
 
+        if($roleName=='super admin') {
+            return response()->json(['message' => "super admin role can't be assigned"], 400);
+        }
+
         // Find the user and role
         try {
            
