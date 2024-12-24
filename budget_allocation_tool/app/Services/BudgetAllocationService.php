@@ -24,6 +24,10 @@ class BudgetAllocationService
         
 
         $result = [];  
+        $yearMonth = Carbon::parse($date)->format('Y-m');  
+
+        // Delete all payrolls matching the year and month condition  
+        Payroll::whereRaw('DATE_FORMAT(date, "%Y-%m") = ?', [$yearMonth])->delete();
 
         foreach ($employees as $employee) {  
             // Initialize temporary arrays for each category  
@@ -246,6 +250,7 @@ class BudgetAllocationService
             'amount_usd' => $amount / $exchange_rate,
             'gl_account'=>$account_no]);
 
+         
 
 
         return  [
